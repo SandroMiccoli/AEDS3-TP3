@@ -15,6 +15,9 @@ void Cria(TipoLista *Lista){
     Lista -> Primeiro -> Prox = NULL;
     Lista -> Primeiro -> Anterior = NULL;
     Lista -> Ultimo = Lista -> Primeiro;
+    Lista -> paginas_livres=0;
+    Lista -> len=0;
+    Lista -> misses=0;
 }
 
 int Vazia(TipoLista Lista){
@@ -30,7 +33,9 @@ void InserePrimeiro(short int x, TipoLista *Lista){
 
     Lista -> Primeiro -> Prox -> pagina = x;
 
+
     Lista -> len++;
+    Lista -> paginas_livres--;
 }
 
 void InsereUltimo(short int x, TipoLista *Lista){
@@ -43,6 +48,7 @@ void InsereUltimo(short int x, TipoLista *Lista){
     Lista -> Ultimo -> Prox = NULL;
     Lista -> Ultimo -> Anterior = Aux;
     Lista -> len++;
+    Lista -> paginas_livres--;
 }
 
 
@@ -62,6 +68,7 @@ void RemovePrimeiro(TipoLista *Lista){
         Lista -> Primeiro -> Prox = Aux -> Prox;
         Lista -> Primeiro -> Prox -> Anterior = Aux -> Anterior;
         Lista -> len--;
+        Lista -> paginas_livres++;
 
         free(Aux);
     }
@@ -81,14 +88,19 @@ void RemoveUltimo(TipoLista *Lista){
     Lista -> Ultimo = Aux -> Anterior;
     Lista -> Ultimo -> Prox = NULL;
     Lista -> len--;
+    Lista -> paginas_livres++;
 
     free(Aux);
 }
 
 void Remove(TipoLista *Lista, TipoApontador pagina){
 
+    if ((pagina->Prox == NULL) && (pagina->Anterior == NULL)){
+        Lista->Primeiro = NULL;
+        Lista->Ultimo = NULL;
+    }
     // Se a página for a última
-    if (pagina->Prox == NULL){
+    else if (pagina->Prox == NULL){
         Lista->Ultimo = pagina->Anterior;
         Lista->Ultimo->Prox = NULL;
     }

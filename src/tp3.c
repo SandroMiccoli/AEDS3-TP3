@@ -49,7 +49,6 @@ int main(int argc, char *argv[]){
             Cria(&memoria_primaria);
             memoria_primaria.paginas_livres = num_paginas;
 
-            TipoApontador temp;
 
             for (int a=0; a<n_acessos; a++){
 
@@ -57,18 +56,17 @@ int main(int argc, char *argv[]){
 
                 pagina_atual.pagina = posicao_acessada / tam_pagina;
 
-                //printf("%d ",posicao_acessada);
-                //printf("%d\n",pagina_atual.pagina);
+                FIFO(&memoria_primaria, pagina_atual);
 
-                InserePrimeiro(a,&memoria_primaria);
+//                printf("%d ",posicao_acessada);
+//                printf("%d ",pagina_atual.pagina);
+//                printf("MISS: %d\n",memoria_primaria.misses);
 
-            //FIFO(memoria_primaria);
+
 
             }
 
-            temp = resideEmMemoria(&memoria_primaria, 9);
-
-            Remove(&memoria_primaria, temp);
+            printf("FIFO: %d\n",memoria_primaria.misses);
 
             Imprime(memoria_primaria);
 

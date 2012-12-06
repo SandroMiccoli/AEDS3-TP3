@@ -22,7 +22,7 @@
 // Função que vasculha a memória primária e verifica se a página se encontra nela
 TipoApontador resideEmMemoria(TipoLista * memoria, int pagina);
 
-void fifo(TipoLista * memoria, TipoCelula pagina);
+void FIFO(TipoLista * memoria, TipoCelula pagina);
 
 
 #endif /* _SMV_H_ */
