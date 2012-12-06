@@ -18,7 +18,7 @@ typedef struct TipoCelula *TipoApontador;
 
 typedef struct TipoCelula {
   short int pagina;
-  int num_acessos, freq_acessos;
+  int num_acessos;
   TipoApontador Anterior;
   TipoApontador Prox;
 } TipoCelula;

@@ -41,13 +41,15 @@ int main(int argc, char *argv[]){
 
             fscanf(inp, "%d %d %d\n", &tam_mem_fis, &tam_pagina, &n_acessos);
 
-            num_paginas = tam_mem_fis / tam_pagina;
+            num_paginas = tam_mem_fis / tam_pagina; // Num de páginas é a razão do tam da memória com o tamanho de cada página
 
-            printf("DADOS: %d %d %d NUM_PAGS: %d\n",tam_mem_fis, tam_pagina, n_acessos, num_paginas);
-
-            TipoLista memoria_primaria;
-            Cria(&memoria_primaria);
-            memoria_primaria.paginas_livres = num_paginas;
+            TipoLista memoria_fifo, memoria_lru, memoria_lfu;
+            Cria(&memoria_fifo);
+            Cria(&memoria_lru);
+            Cria(&memoria_lfu);
+            memoria_fifo.paginas_livres = num_paginas;
+            memoria_lru.paginas_livres = num_paginas;
+            memoria_lfu.paginas_livres = num_paginas;
 
 
             for (int a=0; a<n_acessos; a++){
@@ -56,21 +58,18 @@ int main(int argc, char *argv[]){
 
                 pagina_atual.pagina = posicao_acessada / tam_pagina;
 
-                FIFO(&memoria_primaria, pagina_atual);
-
-//                printf("%d ",posicao_acessada);
-//                printf("%d ",pagina_atual.pagina);
-//                printf("MISS: %d\n",memoria_primaria.misses);
-
-
-
+                FIFO(&memoria_fifo, pagina_atual);
+                LRU(&memoria_lru, pagina_atual);
+                LFU(&memoria_lfu, pagina_atual);
             }
 
-            printf("FIFO: %d\n",memoria_primaria.misses);
+            fprintf(out,"%d ",memoria_fifo.misses);
+            fprintf(out,"%d ",memoria_lru.misses);
+            fprintf(out,"%d\n",memoria_lfu.misses);
 
-            Imprime(memoria_primaria);
-
-            LiberaLista(&memoria_primaria);
+            LiberaLista(&memoria_fifo);
+            LiberaLista(&memoria_lru);
+            LiberaLista(&memoria_lfu);
 
 
         }

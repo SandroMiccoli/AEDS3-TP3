@@ -32,6 +32,7 @@ void InserePrimeiro(short int x, TipoLista *Lista){
     Lista -> Primeiro = Lista -> Primeiro -> Anterior;
 
     Lista -> Primeiro -> Prox -> pagina = x;
+    Lista -> Primeiro -> Prox -> num_acessos = 0;
 
 
     Lista -> len++;
@@ -45,6 +46,7 @@ void InsereUltimo(short int x, TipoLista *Lista){
     Lista -> Ultimo = Lista -> Ultimo -> Prox;
 
     Lista -> Ultimo -> pagina = x;
+    Lista -> Ultimo -> num_acessos = 0;
     Lista -> Ultimo -> Prox = NULL;
     Lista -> Ultimo -> Anterior = Aux;
     Lista -> len++;

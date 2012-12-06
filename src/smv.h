@@ -22,7 +22,13 @@
 // Função que vasculha a memória primária e verifica se a página se encontra nela
 TipoApontador resideEmMemoria(TipoLista * memoria, int pagina);
 
+void ordenaPorAcessos(TipoLista * memoria);
+
 void FIFO(TipoLista * memoria, TipoCelula pagina);
+
+void LRU(TipoLista * memoria, TipoCelula pagina);
+
+void LFU(TipoLista * memoria, TipoCelula pagina);
 
 
 #endif /* _SMV_H_ */
