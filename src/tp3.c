@@ -13,6 +13,7 @@
 #include <string.h>
 #include "lista.h"
 #include "arquivos.h"
+#include "smv.h"
 
 int main(int argc, char *argv[]){
 
@@ -23,6 +24,10 @@ int main(int argc, char *argv[]){
         char saida[40] = "saida/";
         int k; // instâncias a serem simuladas
         int tam_mem_fis, tam_pagina, n_acessos; // tamanho (em bytes) da memória física, de cada página e o número n de acessos
+        int num_paginas; // Quantas páginas a memória primária terá
+        int posicao_acessada;
+
+        TipoCelula pagina_atual;
 
         strcat(entrada,argv[1]);
         strcat(saida,argv[2]);
@@ -36,25 +41,44 @@ int main(int argc, char *argv[]){
 
             fscanf(inp, "%d %d %d\n", &tam_mem_fis, &tam_pagina, &n_acessos);
 
-            printf("DADOS: %d %d %d\n",tam_mem_fis, tam_pagina, n_acessos);
+            num_paginas = tam_mem_fis / tam_pagina;
 
-            TipoLista lista;
-            Cria(&lista);
+            printf("DADOS: %d %d %d NUM_PAGS: %d\n",tam_mem_fis, tam_pagina, n_acessos, num_paginas);
+
+            TipoLista memoria_primaria;
+            Cria(&memoria_primaria);
+            memoria_primaria.paginas_livres = num_paginas;
+
+            TipoApontador temp;
 
             for (int a=0; a<n_acessos; a++){
 
+                fscanf(inp, "%d", &posicao_acessada);
 
-                InserePrimeiro(5,&lista);
-                InserePrimeiro(4,&lista);
+                pagina_atual.pagina = posicao_acessada / tam_pagina;
+
+                //printf("%d ",posicao_acessada);
+                //printf("%d\n",pagina_atual.pagina);
+
+                InserePrimeiro(a,&memoria_primaria);
+
+            //FIFO(memoria_primaria);
 
             }
 
-            Imprime(lista);
+            temp = resideEmMemoria(&memoria_primaria, 9);
 
-            LiberaLista(&lista);
+            Remove(&memoria_primaria, temp);
+
+            Imprime(memoria_primaria);
+
+            LiberaLista(&memoria_primaria);
 
 
         }
+
+        fechaArquivo(inp);
+        fechaArquivo(out);
 
     }
 

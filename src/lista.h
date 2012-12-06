@@ -17,14 +17,17 @@ typedef int TipoChave;
 typedef struct TipoCelula *TipoApontador;
 
 typedef struct TipoCelula {
-  short int Algarismo;
+  short int pagina;
+  int num_acessos, freq_acessos;
   TipoApontador Anterior;
   TipoApontador Prox;
 } TipoCelula;
 
 typedef struct {
   TipoApontador Primeiro, Ultimo;
+  int paginas_livres;
   int len;
+  int misses;
 } TipoLista;
 
 
@@ -38,7 +41,9 @@ void InsereUltimo(short int x, TipoLista *Lista);
 
 void RemovePrimeiro(TipoLista *Lista);
 
-void RemoveUltimo(TipoLista *Lista);
+void RemoveUltimo(TipoLista *Lista)
+;
+void Remove(TipoLista *Lista, TipoApontador pagina);
 
 void LiberaLista(TipoLista *Lista);
 

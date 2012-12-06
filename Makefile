@@ -4,7 +4,7 @@ CFLAGS = -Wall -Lsrc
 
 RM = rm -f
 
-OBJS = src/tp3.c src/lista.c src/arquivos.c
+OBJS = src/tp3.c src/lista.c src/arquivos.c src/smv.c
 
 VALGRIND = valgrind -v --read-var-info=yes --tool=memcheck --leak-check=yes --show-reachable=yes --track-origins=yes
 #VALGRIND = valgrind  --read-var-info=yes --tool=memcheck --leak-check=yes -v
@@ -35,7 +35,7 @@ clean:
 	clear
 
 val: $(MAIN)
-	$(VALGRIND) ./$(MAIN)
+	$(VALGRIND) ./$(MAIN) input.txt output.txt
 
 run: $(MAIN)
 	@echo " Executando programa..."

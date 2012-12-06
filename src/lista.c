@@ -28,7 +28,7 @@ void InserePrimeiro(short int x, TipoLista *Lista){
     Lista -> Primeiro -> Anterior -> Prox = Lista -> Primeiro;
     Lista -> Primeiro = Lista -> Primeiro -> Anterior;
 
-    Lista -> Primeiro -> Prox -> Algarismo = x;
+    Lista -> Primeiro -> Prox -> pagina = x;
 
     Lista -> len++;
 }
@@ -39,7 +39,7 @@ void InsereUltimo(short int x, TipoLista *Lista){
     Lista -> Ultimo -> Prox = (TipoApontador) malloc(sizeof(TipoCelula));
     Lista -> Ultimo = Lista -> Ultimo -> Prox;
 
-    Lista -> Ultimo -> Algarismo = x;
+    Lista -> Ultimo -> pagina = x;
     Lista -> Ultimo -> Prox = NULL;
     Lista -> Ultimo -> Anterior = Aux;
     Lista -> len++;
@@ -85,6 +85,30 @@ void RemoveUltimo(TipoLista *Lista){
     free(Aux);
 }
 
+void Remove(TipoLista *Lista, TipoApontador pagina){
+
+    // Se a página for a última
+    if (pagina->Prox == NULL){
+        Lista->Ultimo = pagina->Anterior;
+        Lista->Ultimo->Prox = NULL;
+    }
+    // Se a página for a primeira
+    else if (pagina->Anterior == NULL) {
+        Lista->Primeiro = pagina->Prox;
+        Lista->Primeiro->Anterior = NULL;
+    }
+    else {
+        pagina->Anterior->Prox = pagina->Prox;
+        pagina->Prox->Anterior = pagina->Anterior;
+    }
+
+    Lista->len--;
+    Lista->paginas_livres++;
+
+    free(pagina);
+
+}
+
 void LiberaLista(TipoLista *Lista){
 
     TipoApontador Aux, Aux2;
@@ -106,7 +130,7 @@ void Imprime(TipoLista Lista){
     Aux = Lista.Primeiro -> Prox;
 
     while (Aux != NULL){
-        printf("%d", Aux -> Algarismo);
+        printf("%d", Aux -> pagina);
         Aux = Aux -> Prox;
     }
     //printf(" Tamanho: %d\n", Lista.len);
@@ -119,10 +143,10 @@ void ImprimeReverso(TipoLista Lista){
     TipoApontador Aux;
     Aux = Lista.Ultimo -> Anterior;
 
-    printf("%d", Lista.Ultimo -> Algarismo); // Imprimi a última célsula da lista.
+    printf("%d", Lista.Ultimo -> pagina); // Imprimi a última célsula da lista.
 
     do{
-        printf("%d", Aux -> Algarismo);
+        printf("%d", Aux -> pagina);
         Aux = Aux -> Anterior;
     }while (Aux -> Anterior != NULL); // Pega o anterior do anterior para não imprimir a célula cabeça.
     printf("\n");
@@ -136,7 +160,7 @@ void copiaLista(TipoLista *A, TipoLista* B){
 
 
     while(Aux != NULL){
-        InsereUltimo(Aux -> Algarismo, B);
+        InsereUltimo(Aux -> pagina, B);
         Aux = Aux -> Prox;
     }
 
