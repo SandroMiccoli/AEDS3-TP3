@@ -41,7 +41,7 @@ int main(int argc, char *argv[]){
             TipoLista lista;
             Cria(&lista);
 
-            for (int a=0; a<n_acessos; a++){
+            for (int a=0; a<n_acesso; a++){
 
 
                 InserePrimeiro(5,&lista);

@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "tad_lista.h"
+#include "lista.h"
 
 
 void Cria(TipoLista *Lista){

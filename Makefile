@@ -4,7 +4,7 @@ CFLAGS = -Wall -Lsrc
 
 RM = rm -f
 
-OBJS = src/tp3.c src/tad_lista.c
+OBJS = src/tp3.c src/lista.c src/arquivos.c
 
 VALGRIND = valgrind -v --read-var-info=yes --tool=memcheck --leak-check=yes --show-reachable=yes --track-origins=yes
 #VALGRIND = valgrind  --read-var-info=yes --tool=memcheck --leak-check=yes -v
