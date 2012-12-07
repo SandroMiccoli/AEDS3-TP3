@@ -1,0 +1,413 @@
+
+%	Documentação do Trabalho Prático 1 de AEDSIII
+%	@Sandro Miccoli
+%
+%	* Você pode identificar erros de grafia através do seguinte comando linux:
+%		aspell --encoding="utf-8" -c -t=tex --lang="pt_BR" tp2.tex
+%
+
+\documentclass[12pt]{article}
+\usepackage{sbc-template}
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage{subfigure}
+\usepackage{times,amsmath,epsfig}
+\usepackage{graphicx,url}
+ \makeatletter
+ \newif\if@restonecol
+ \makeatother
+ \let\algorithm\relax
+ \let\endalgorithm\relax
+\graphicspath{{./data/}}
+\usepackage[lined,algonl,ruled]{algorithm2e}
+\usepackage{multirow}
+\usepackage[brazil]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+
+\usepackage{alltt}
+\renewcommand{\ttdefault}{txtt}
+
+\sloppy
+
+\title{TRABALHO PRÁTICO 3: \\ Memória Virtual}
+
+\author{Sandro Miccoli - 2009052409 - smiccoli@dcc.ufmg.br}
+
+\address{Departamento de Ciência da Computação -- Universidade Federal de Minas Gerais (UFMG)\\
+\\
+\today}
+
+
+\begin{document}
+
+\maketitle
+
+\begin{resumo}
+Este relatório descreve como foi implementado uma versão simplificada de um simulador de memória virtual (SMV). Será descrito como foi modelado o problema, e como cada política de reposição de páginas funciona. Finalmente será detalhado a análise de complexidade dos algoritmos e uma análise de cada política de acordo com a especificação do trabalho, e, por último, uma breve conclusão do trabalho implementado.
+\end{resumo}
+
+\section{INTRODUÇÃO}
+
+    Um palíndromo é uma palavra, frase ou qualquer outra sequência de unidades que tenha a propriedade de poder ser lida tanto da direita para a esquerda como da esquerda para a direita \cite{wikipalin}.
+
+    O problema deste trabalho é encontrar qual o menor palíndromo possível de ser gerado inserindo caracteres na palavra original. No caso da palavra CASA, por exemplo, a solução seria CASAC.
+
+    Para solucionar essa questão foi criada duas abordagens, uma de solução ótima, utilizando programação dinâmica (PD) e outra de solução não-ótima, utilizando o paradigma guloso (PG).
+
+	O restante deste relatório é organizado da seguinte forma. A Seção~\ref{modelagem} descreve como foi feita a modelagem do problema e manipulação das palavras. A Seção \ref{solucao_proposta} descreve as propriedades de sub-estrutura ótima e sobreposição dos problemas do paradigma guloso, e também discute a otimalidade da solução gulosa. A Seção~\ref{implementacao} trata de detalhes específicos da implementação do trabalho: quais os arquivos utilizados; como é feita a compilação e execução; além de detalhar o formato dos arquivos de entrada e saída. A Seção~\ref{avaliacao_experimental} contém a avaliação experimental, que faz uma análise de quantos porcento a mais de caracteres que a solução gulosa utiliza em relação à solução ótima. A Seção~\ref{conclusao} conclui o trabalho.
+
+
+\section{MODELAGEM}
+\label{modelagem}
+
+	Para solucionar o problema do palíndromo, o modelamos como o problema da \textbf{Maior Subsequência Comum}, também conhecido como \textit{Longest Common Subsequence} (LCS). Uma subsequência de uma sequência de símbolos $X$ é uma sequência $Y$ com zero ou mais símbolos de $X$ removidos. Exemplo: $Z = \{B, C, D, B\}$ é uma subsequência de $X = \{A, B, C, B, D, A, B\}$.
+	\\
+	\\
+	\\
+	Definição mais formal:\\
+	\\
+	\textit{Longest Common Subsequence (LCS)}: Dadas as sequências $X [1..m]$ e $Y [1..n]$ encontrar uma sequência $Z$ que seja subsequência de $X$ e $Y$ e tem comprimento (número de símbolos) máximo. Exemplo:\\
+	\\
+	$X = \{A, B, C, B, D, A, B\}$\\
+	$Y = \{B, D, C, A, B, A\}$\\
+	$LCS (X,Y) = \{B, C, B, A\}$\\
+
+	Como o problema específico neste trabalho é encontrar palíndromos, então nossa sequência $Y$ é o inverso da nossa sequência $X$.
+
+\section{SOLUÇÃO PROPOSTA}
+\label{solucao_proposta}
+
+\subsection{Abordagem Dinâmica}
+\label{dinamica}
+
+    Uma primeira abordagem escolhida para resolver este problema é o de Programação Dinâmica. Programação dinâmica é um método para a construção de algoritmos para a resolução de problemas computacionais, em especial os de otimização combinatória. Ela é aplicável a problemas nos quais a solução ótima pode ser computada a partir da solução ótima previamente calculada e memorizada - de forma a evitar recálculo - de outros subproblemas que, sobrepostos, compõem o problema original \cite{szwarccfiter}.
+
+    O que um problema de otimização deve ter para que a programação dinâmica seja aplicável são duas principais características: subestrutura ótima e superposição de subproblemas. Um problema apresenta uma subestrutura ótima quando uma solução ótima para o problema contém em seu interior soluções ótimas para subproblemas. A superposição de subproblemas acontece quando um algoritmo recursivo reexamina o mesmo problema muitas vezes \cite{szwarccfiter}.
+
+    O \textit{LCS} tem \textbf{subestrutura ótima}, pois pode ser quebrado em problemas menores, mais simples, os quais também podem ser divididos em subproblemas menores ainda, e assim por diante, até, finalmente, a solução for trivial. O \textit{LCS} também tem \textbf{sobreposição de problemas}: a solução de um subproblema maior depende da solução de vários subproblemas menores \cite{wikilcs}.
+
+    Para calcular o \textit{LCS} utilizamos uma tabela para armazenar os valores calculados a cada passo da execução. As implementações mais encontradas na internet utilizavam uma tabela $(n+1, m+1)$, sendo $n$ e $m$ o tamanho de cada uma das strings. A abordagem dinâmica escolhida aqui foi utilizar uma tabela com apenas $2$ linhas e $n$ colunas, sendo $n$ o tamanho da \textit{string} que encontraremos o menor palíndromo. Como o trabalho pede apenas o tamanho do \textit{LCS}, então só precisamos do estado atual e anterior de cada coluna da matriz, por isso utilizamos apenas duas linhas para realizar os cálculos \cite{hirsch}.
+
+    A seguir um pseudocódigo do algoritmo implementado:
+
+    \newpage
+
+    \begin{lstlisting}[language=c]
+    int LCS(X)
+        M = array(n, 2) // Matriz de estados do LCS
+
+        for i = n ate 0
+            charRev = X[i] // Le palavra reversamente
+
+            for j = 0 ate n
+                charCon = X[j] // Le palavra continuamente
+
+                    if charCon = charRev
+                        M[i,j+1] = M[0,j] + 1
+                    else
+                        M[i,j+1] = max(M[1,j], M[0,j+1])
+
+            for k = 0 ate n
+                M[0][k] = M[1][k] // Atualiza estado atual
+
+    return n - M[1,n]
+    \end{lstlisting}
+
+
+\subsubsection{Algoritmo implementado}
+
+\begin{itemize}
+ \item \begin{large}\textit{int lcs(char * palavra, int len, Matriz * estados)}\end{large}\\
+ \subitem \textbf{Descrição:} Calcula o \textit{LCS} da palavra e retorna seu valor.
+ \subitem \textbf{Parâmetros:} Vetor da palavra, inteiro contendo o tamanho da palavra, e uma matriz de estados.
+ \subitem \textbf{Complexidade:} $O(n^2)$, onde $n$ é o tamanho da palavra.
+\end{itemize}
+
+\subsection{Abordagem Gulosa}
+\label{gulosa}
+
+A abordagem gulosa escolhida foi a seguinte: o algoritmo percorre a palavra letra por letra e a cada momento verifica se essa palavra é um palíndromo ou não. Ele percorre a palavra inteira para encontrar o maior palíndromo contido nela, então de acordo com seu tamanho e o tamanho do maior palíndromo, podemos deduzir a quantidade de letras a serem inseridas para transformar a palavra inicial em um palíndromo.
+
+A cada iteração ele verifica se a atual substring é um palíndromo ou não, caso seja, ela verifica se ela é maior que o palíndromo encontrado anteriormente, se for então é armazenado a quantidade de caracteres desse novo palíndromo encontrado.
+
+O algoritmo não pode ser considerado ótimo, pois ele supõe que o maior palíndromo estará no início ou no final da palavra, em outras palavras, o algoritmo apenas encontra palíndromos que são sufixos ou prefixos da palavra. Então para casos em que o maior palíndromo esteja no meio da palavra o algoritmo guloso não será nem um pouco ótimo.
+
+Logo abaixo segue um exemplo para o algoritmo ficar mais claro:
+
+    \begin{lstlisting}[language=c]
+        Palavra: ovobanana
+        a 1 // Marca como sendo o maior palindromo
+        o 1
+        na 0
+        vo 0
+        ana 1 // Palindromo maior do que o encontrado anteriormente
+        ovo 1
+        nana 0
+        bovo 0
+        anana 1 // Palindromo maior do que o encontrado anteriormente
+        abovo 0
+        banana 0
+        nabovo 0
+        obanana 0
+        anabovo 0
+        vobanana 0
+        nanabovo 0
+        ovobanana 0
+        ananabovo 0
+    \end{lstlisting}
+
+    Então o algoritmo encontrou o maior palíndromo (anana), que contém 5 caracteres. A resposta que ele retorna é a quantidade de letras da palavra original, menos a quantidade de letras do palíndromo. Nesse caso, o algoritmo irá precisar inserir quatro caracteres para transformar a palavra toda em um palíndromo.
+
+\subsubsection{Algoritmos implementados}
+
+\begin{itemize}
+ \item \begin{large}\textit{int palindromo(char *palavra, int len)}\end{large}\\
+ \subitem \textbf{Descrição:} Verifica caso a palavra em questão é um palíndromo ou não
+ \subitem \textbf{Parâmetros:} Vetor da palavra e um inteiro contendo o tamanho da palavra.
+ \subitem \textbf{Complexidade:} $O(n)$, onde $n$ é o tamanho da palavra.
+\end{itemize}
+
+\vspace{0.2 true cm}
+
+\begin{itemize}
+ \item \begin{large}\textit{int guloso(char * palavra, int len)}\end{large}\\
+ \subitem \textbf{Descrição:} Algoritmo que vasculha a palavra para encontrar o maior palíndromo que seja sufixo ou prefixo da palavra.
+ \subitem \textbf{Parâmetros:} Vetor da palavra e um inteiro contendo o tamanho da palavra.
+ \subitem \textbf{Complexidade:} $O(n^2)$, onde $n$ é o tamanho da palavra.
+\end{itemize}
+
+\vspace{0.2 true cm}
+
+
+\section{IMPLEMENTAÇÃO}
+\label{implementacao}
+
+\subsection{Código}
+
+\subsubsection{Arquivos .c}
+
+\begin{itemize}
+\item \textbf{tp2pd.c} Arquivo principal do programa com a abordagem de programação dinâmica, chama a função LCS e insere cada resultado no arquivo de saída.
+\item \textbf{tp2g.c} Arquivo principal do programa com a abordagem gulosa, chama a função "guloso" e insere cada resultado no arquivo de saída.
+\item \textbf{lcs.c} Contém a implementação da função LCS, utilizada na abordagem de programação dinâmica.
+\item \textbf{guloso.c} Contém a definição da função guloso, utilizada na abordagem de paradigma guloso, e da função palindromo.
+\item \textbf{matriz.c} Contém todas as funções de manipulação, leitura e escrita de matrizes.
+\item \textbf{arquivos.c} Um tipo abstrato de dados de manipulação de arquivos, contendo funções de abertura, leitura, escrita e fechamento.
+\end{itemize}
+
+\subsubsection{Arquivos .h}
+
+\begin{itemize}
+\item \textbf{lcs.h} Contém a definição da função LCS, utilizada na abordagem de programação dinâmica.
+\item \textbf{guloso.h} Contém a definição da função guloso, utilizada na abordagem de paradigma guloso, e da função palíndromo.
+\item \textbf{matriz.h} Além de definir a estrutura de matriz, contém o cabeçalho todas as funções de manipulação, leitura e escrita de matrizes.
+\item \textbf{arquivos.h} Definição da das funções utilizadas para ler, escrever e fechar corretamente um arquivo.
+\end{itemize}
+
+\subsection{Compilação}
+
+O programa deve ser compilado através do compilador GCC através dos seguintes comandos
+
+Para programação dinâmica:
+\begin{footnotesize}
+\begin{verbatim}
+gcc -Wall -Lsrc src/tp2pd.c src/arquivos.c src/matriz.c src/lcs.c -o tp2pd \end{verbatim}
+\end{footnotesize}
+
+E para o algoritmo guloso:
+\begin{footnotesize}
+\begin{verbatim}
+gcc -Wall -Lsrc src/tp2g.c src/arquivos.c src/matriz.c src/guloso.c -o tp2g \end{verbatim}
+\end{footnotesize}
+
+Ou através do comando $make$.
+
+\subsection{Execução}
+
+A execução do programa tem como parâmetros:
+\begin{itemize}
+\item Um arquivo de entrada contendo várias instâncias de palavras.
+\item Um arquivo de saída que irá receber o resultado dos cálculos do menor palíndromo possível a ser gerado.
+\end{itemize}
+
+O comando para a execução do programa é da forma:
+
+Programação Dinâmica:
+\begin{footnotesize}
+\begin{verbatim} ./tp2pd <arquivo_de_entrada> <arquivo_de_saída>\end{verbatim}
+\end{footnotesize}
+
+Paradigma Guloso:
+\begin{footnotesize}
+\begin{verbatim} ./tp2g <arquivo_de_entrada> <arquivo_de_saída>\end{verbatim}
+\end{footnotesize}
+
+\subsubsection{Formato da entrada}
+
+A primeira linha do arquivo de entrada contém o valor \textit{k} de instâncias que o arquivo contém. As próximas $k$ linhas contém as palavras.
+
+A seguir um arquivo de entrada de exemplo:
+
+\begin{verbatim}
+5
+BOLO
+XBOX
+BANANA
+SUCESSO
+WOW
+\end{verbatim}
+
+\subsubsection{Formato da saída}
+
+O arquivo de saída consiste em k linhas com o número mínimo de caracteres necessários para gerar um palíndromo com a palavra dada de entrada na linha correspondente. Um exemplo é mostrado abaixo:
+
+\begin{verbatim}
+1
+1
+1
+4
+0
+\end{verbatim}
+
+
+\section{AVALIAÇÃO EXPERIMENTAL}
+\label{avaliacao_experimental}
+
+Para testar os algoritmos foi feito o seguinte: um script foi criado que, utilizando um dicionário de aproximadamente 2000 palavras, geraria uma sequência de palavras, concatenadas ou não, para testar cada tipo de cenário.
+
+Foi realizado uma série de testes, com entradas crescentes, da maneira que é explicado nas próximas seções.
+
+\subsection{Máquina utilizada}
+\label{maquina}
+
+Segue especificação da máquina utilizada para os testes:
+\begin{verbatim}
+model name:     Intel(R) Core(TM) i3 CPU       M 330  @ 2.13GHz
+cpu MHz:        933.000
+cache size:     3072 KB
+MemTotal:       3980124 kB
+\end{verbatim}
+
+
+\subsection{Testes}
+\label{testes}
+
+Então foi pensado em cinco testes a serem executados, um com apenas uma palavra pra ser testada, outro com 5 palavras concatenadas, um com 10 palavras concatenadas, um com 50 palavras concatenadas e, por último, um teste com 100 palavras concatenadas. Assim teríamos testes com palavras relativamente pequenas e com uma série de caracteres relativamente grandes. Assim poderíamos ver o comportamento de cada paradigma para tanto entradas pequenas quando grandes.
+
+O gráfico que será mostrado em cada teste mostra especificamente a quantidade de caracteres (em porcentagem) a mais que o algoritmo guloso teve de inserir que o algoritmo de programação dinâmica. Assim podemos fazer uma análise entre a solução não-ótima e a solução ótima.
+
+Dentro de cada subseção será dado um exemplo de entrada para cada teste e será detalhado melhor as características de cada um.
+
+\subsubsection{Testes pequenos - Uma palavra}
+\label{pequeno}
+
+A quantidade média de caracteres neste teste ficou entre aproximadamente $10$. A seguir um exemplo das palavras utilizadas no teste:
+
+\begin{verbatim}
+abbreviations
+abandoned
+youthfulness
+...
+\end{verbatim}
+
+
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.6\textwidth]{umapalavra.png}
+        \caption{Uma palavra - Quantidade de caracteres a mais (em \%)}
+        \label{umapalavra}
+    \end{figure}
+
+    Na Figura \ref{umapalavra} é perceptível que a grande maioria dos testes não houve diferença entre a solução gulosa e a solução ótima. Porém, quando houve, a diferença de caracteres cresceu bastante, chegando até a $200\%$.
+
+    Para não alterar demais a visualização do gráfico, um resultado foi removido pois a diferença de caracteres era de $800\%$; mas, de uma série de 200 palavras testadas, apenas uma que teve esse comportamento. Isso ocorreu quando o algoritmo de programação dinâmica teve de inserir apenas uma letra e o guloso inseriu 9.
+
+
+\subsubsection{Testes médios - Cinco palavras concatenadas}
+\label{medio}
+
+Na Figura \ref{cincopalavras} pode-se ver o resultado do teste que utilizou uma série de palavras concatenadas, neste caso, cinco palavras. Cada instância ficou com aproximadamente $30$ até $40$ caracteres. A seguir um exemplo das palavras usadas no teste:
+
+\begin{verbatim}
+abatedabnormallywondrousxeroxingzero
+deifiedwonabolishmentsabbottzenith
+yankeewizardwoefulabaseswrangle
+...
+\end{verbatim}
+
+
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.6\textwidth]{cincopalavras2.png}
+        \caption{Cinco palavras - Quantidade de caracteres a mais (em \%)}
+        \label{cincopalavras}
+    \end{figure}
+
+\subsubsection{Testes médios - Dez palavras concatenadas}
+\label{medio10}
+
+Na Figura \ref{dezpalavras} consta o resultado do teste que utilizou uma série de caracteres que eram formados por palavras concatenadas umas nas outras, neste caso, 10 palavras no total. Cada instância ficou com aproximadamente $60$ até $80$ caracteres. A seguir um exemplo das palavras usadas no teste:
+
+\begin{verbatim}
+woveyugoslavianyoungsterreferyuridevovedwonderabashingaboveyellowed
+wontwritesabaseszuluwrestyeayesterdayabbreviatingzoologicallyzone
+yorktownwrittenaberrationsaibohphobiaababawrappedwolffaberrantablewrote
+...
+\end{verbatim}
+
+
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.6\textwidth]{dezpalavras3.png}
+        \caption{Dez palavras - Quantidade de caracteres a mais (em \%)}
+        \label{dezpalavras}
+    \end{figure}
+
+
+\subsubsection{Testes grandes - Cinquenta palavras concatenadas}
+\label{grande50}
+
+Na Figura \ref{cinquentapalavras} aumentamos a quantidade de palavras concatenadas para cinquenta. Neste teste não iremos mostrar as palavras concatenadas, mas cada uma ficou com $350$ até $450$ caracteres.
+
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.6\textwidth]{cinquentapalavras.png}
+        \caption{Cinquenta palavras - Quantidade de caracteres a mais (em \%)}
+        \label{cinquentapalavras}
+    \end{figure}
+
+\subsubsection{Testes grandes - Cem palavras concatenadas}
+\label{grande100}
+
+Na Figura \ref{cempalavras}, no último teste, concatenamos cem palavras. Não iremos mostrar as palavras concatenadas, mas cada uma ficou com uma média de $900$ caracteres.
+
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.6\textwidth]{cempalavras.png}
+        \caption{Cem palavras - Quantidade de caracteres a mais (em \%)}
+        \label{cempalavras}
+    \end{figure}
+
+\subsection{Resultado}
+
+	Como é possível perceber pela série de testes na última seção, quanto maior a cadeia de caracteres a ser computada pelos algoritmos, mais homogênea e regular a diferença entre cada solução fica. Nos primeiros teste, de apenas uma palavra \ref{pequeno}, e de 5 palavras \ref{medio}, a variação é gritante. No primeiro varia de $0\%$ até $800\%$, no segundo a variação diminui mas ainda é relativamente grande. Podemos ver na Figura \ref{cincopalavras}, que a quantidade de caracteres vai de aproximadamente $15\%$ para $100\%$.
+
+	Nos últimos testes a curva de variação de caracteres vai se tornando cada vez mais estável. No teste com dez palavras concatenadas, na Figura \ref{dezpalavras}, a variação vai de aproximadamente $25\%$ para $75\%$. Mas quando os caracteres vão para a casa das centenas e milhares, essa variação se torna cada vez menor, se localizando em torno dos $60\%$, $70\%$.
+
+
+\section{CONCLUSÃO}
+\label{conclusao}
+
+    Os dois algoritmos implementados solucionam o problema do palíndromo apresentado. O primeiro algoritmo, utilizando o paradigma de programação dinâmica, possui solução ótima, ou seja, sempre encontrará o melhor resultado. Já o algoritmo guloso, possui solução não-ótima, pois toma as decisões que julga ser melhor naquele momento específico, porém sem considerar vários outros aspectos do problema.
+
+    Foi visto na Avaliação Experimental, que quanto maior a cadeia de caracteres, mais constante ficava a diferença entre as soluções ótima e não-ótima. Claro que a solução ótima ainda conseguia resolver o problema com uma média de $60\%$ a menos de caracteres inseridos, mas ainda assim era um resultado que não era esperado. Acreditava que a solução não-ótima do algoritmo guloso teria um rendimento muito pior.
+
+    Caso fosse acatar o resultado do teste \ref{pequeno}, poderia dizer que o teto observável para a quantidade de caracteres a ser inseridos seria $800\%$, porém esse foi um único caso dentre centenas de outros testados. Observando os resultados dos testes maiores, poderia dizer que o teto observável ficaria em torno de $75\%$.
+
+    O problema de gerar palíndromos de forma eficiente foi solucionado com sucesso. Além disso, duas soluções, uma ótima e uma não-ótima, foram implementadas, obtendo um bom rendimento nos inúmeros testes realizados. Nos testes comparativos foi possível perceber a diferença gritante entre uma solução ótima e uma não-ótima.
+
+\bibliographystyle{sbc}
+\bibliography{tp3}
+
+\end{document}
