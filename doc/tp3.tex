@@ -102,17 +102,16 @@ Este relatório descreve como foi implementado uma versão simplificada de um si
 \subsubsection{Arquivos .c}
 
 \begin{itemize}
-\item \textbf{tp2pd.c} Arquivo principal do programa com a abordagem de programação dinâmica, chama a função LCS e insere cada resultado no arquivo de saída.
-\item \textbf{tp2g.c} Arquivo principal do programa com a abordagem gulosa, chama a função "guloso" e insere cada resultado no arquivo de saída.
-\item \textbf{lcs.c} Contém a implementação da função LCS, utilizada na abordagem de programação dinâmica.
+\item \textbf{tp3.c} Arquivo principal do programa. Lê os arquivos de entrada, calcula os \textit{page faults} pra cada política e escreve o resultado em um arquivo de saída.
+\item \textbf{lista.c} TAD da uma lista duplamente encadeada. Contém funções de manipulação (criação, inserção, remoção e liberação de memória), e também de impressão e cópia.
+\item \textbf{smv.c} Contém a implementação das políticas de reposição FIFO, LRU, LFU.
 \end{itemize}
 
 \subsubsection{Arquivos .h}
 
 \begin{itemize}
-\item \textbf{lcs.h} Contém a definição da função LCS, utilizada na abordagem de programação dinâmica.
-\item \textbf{guloso.h} Contém a definição da função guloso, utilizada na abordagem de paradigma guloso, e da função palíndromo.
-\item \textbf{matriz.h} Além de definir a estrutura de matriz, contém o cabeçalho todas as funções de manipulação, leitura e escrita de matrizes.
+\item \textbf{lista.h} TAD da uma lista duplamente encadeada. Contém a definição da estrutura e das funções.
+\item \textbf{smv.h} Contém a definição das políticas de reposição FIFO, LRU, LFU.
 \end{itemize}
 
 \subsection{Compilação}
@@ -122,13 +121,7 @@ O programa deve ser compilado através do compilador GCC através dos seguintes 
 Para programação dinâmica:
 \begin{footnotesize}
 \begin{verbatim}
-gcc -Wall -Lsrc src/tp2pd.c src/arquivos.c src/matriz.c src/lcs.c -o tp2pd \end{verbatim}
-\end{footnotesize}
-
-E para o algoritmo guloso:
-\begin{footnotesize}
-\begin{verbatim}
-gcc -Wall -Lsrc src/tp2g.c src/arquivos.c src/matriz.c src/guloso.c -o tp2g \end{verbatim}
+gcc -Wall -Lsrc src/tp3.c src/lista.c src/arquivos.c src/smv.c -o tp3 \end{verbatim}
 \end{footnotesize}
 
 Ou através do comando $make$.
@@ -137,47 +130,35 @@ Ou através do comando $make$.
 
 A execução do programa tem como parâmetros:
 \begin{itemize}
-\item Um arquivo de entrada contendo várias instâncias de palavras.
-\item Um arquivo de saída que irá receber o resultado dos cálculos do menor palíndromo possível a ser gerado.
+\item Um arquivo de entrada contendo várias instâncias a serem simuladas.
+\item Um arquivo de saída que irá receber a quantidade de \textit{page faults} pra cada política de reposição
 \end{itemize}
 
 O comando para a execução do programa é da forma:
 
-Programação Dinâmica:
 \begin{footnotesize}
-\begin{verbatim} ./tp2pd <arquivo_de_entrada> <arquivo_de_saída>\end{verbatim}
+\begin{verbatim} ./tp3 <arquivo_de_entrada> <arquivo_de_saída>\end{verbatim}
 \end{footnotesize}
 
-Paradigma Guloso:
-\begin{footnotesize}
-\begin{verbatim} ./tp2g <arquivo_de_entrada> <arquivo_de_saída>\end{verbatim}
-\end{footnotesize}
 
 \subsubsection{Formato da entrada}
 
-A primeira linha do arquivo de entrada contém o valor \textit{k} de instâncias que o arquivo contém. As próximas $k$ linhas contém as palavras.
+A primeira linha do arquivo de entrada contém o valor \textit{k} de instâncias que o arquivo contém. As $k$ instâncias são definidas em duas linhas cada uma. A primeira linha contem três inteiros: o tamanho em bytes da memória física, o tamanho em bytes de cada página, e o número N de acessos. A linha seguinte contém N inteiros representando as N posições da memória virtual acessadas sequencialmente.
 
 A seguir um arquivo de entrada de exemplo:
 
 \begin{verbatim}
-5
-BOLO
-XBOX
-BANANA
-SUCESSO
-WOW
+1
+8 4 10
+0 2 4 2 10 1 0 0 6 8
 \end{verbatim}
 
 \subsubsection{Formato da saída}
 
-O arquivo de saída consiste em k linhas com o número mínimo de caracteres necessários para gerar um palíndromo com a palavra dada de entrada na linha correspondente. Um exemplo é mostrado abaixo:
+O arquivo de saída consiste em $k$ linhas, cada uma representando o resultado de uma instância. Cada linha contém um inteiro que representa o número de falhas utilizando FIFO, LRU e LFU, necessariamente nessa ordem. Um exemplo é mostrado abaixo:
 
 \begin{verbatim}
-1
-1
-1
-4
-0
+6 5 5
 \end{verbatim}
 
 
