@@ -103,23 +103,21 @@ void Remove(TipoLista *Lista, TipoApontador pagina){
     }
     // Se a página for a última
     else if (pagina->Prox == NULL){
-        Lista->Ultimo = pagina->Anterior;
-        Lista->Ultimo->Prox = NULL;
+        RemoveUltimo(Lista);
     }
     // Se a página for a primeira
     else if (pagina->Anterior == NULL) {
-        Lista->Primeiro = pagina->Prox;
-        Lista->Primeiro->Anterior = NULL;
+        RemovePrimeiro(Lista);
     }
     else {
         pagina->Anterior->Prox = pagina->Prox;
         pagina->Prox->Anterior = pagina->Anterior;
+        free(pagina);
+        Lista->len--;
+        Lista->paginas_livres++;
     }
 
-    Lista->len--;
-    Lista->paginas_livres++;
 
-    free(pagina);
 
 }
 
