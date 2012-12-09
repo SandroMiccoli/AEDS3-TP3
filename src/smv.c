@@ -24,6 +24,33 @@ TipoApontador resideEmMemoria(TipoLista * memoria, int pagina){
 
 }
 
+void removeMenosAcessada(TipoLista * memoria){
+    int min = 99999;
+
+    TipoApontador menos_acessada;
+    TipoApontador aux;
+
+    aux = memoria->Primeiro;
+
+    while (aux != NULL){
+        if (aux->num_acessos < min){
+            menos_acessada = aux;
+            min = menos_acessada->num_acessos;
+        }
+        else if(aux->num_acessos == min){
+                if (aux->pagina < menos_acessada->pagina){
+                    menos_acessada = aux;
+                }/*
+                else if (aux->pagina > menos_acessada->pagina){
+                    menos_acessada = aux;
+                }*/
+        }
+        aux = aux -> Prox;
+    }
+
+    Remove(memoria, menos_acessada);
+}
+
 void ordenaPorAcessos(TipoLista * memoria){
     int min=99999;
 
@@ -39,11 +66,13 @@ void ordenaPorAcessos(TipoLista * memoria){
         }
         else if (pagina_aux->num_acessos == min){
             //printf("PAG ATUAL: %d, PAG ANTERIOR: %d\n",pagina_aux->pagina, pagina_aux->Anterior->pagina);
-            if (pagina_aux->pagina < pagina_aux->Anterior->pagina && pagina_aux->Anterior != NULL){
+            if (pagina_aux->pagina < pagina_aux->Anterior->pagina){
+                printf("PAGINAAUX ANTES: %d", pagina_aux->pagina);
                 Remove(memoria, pagina_aux);
+                printf("\tPAGINAAUX DEPOIS: %d\n\n", pagina_aux->pagina);
                 InserePrimeiro(pagina_aux->pagina, memoria);
             }
-            else if (pagina_aux->pagina > pagina_aux->Anterior->pagina && pagina_aux->Anterior != NULL){
+            else if (pagina_aux->pagina > pagina_aux->Anterior->pagina){
                 Remove(memoria, pagina_aux->Anterior);
                 InserePrimeiro(pagina_aux->Anterior->pagina, memoria);
             }
@@ -98,13 +127,13 @@ void LFU(TipoLista * memoria, TipoCelula pagina){
         if (memoria->paginas_livres > 0)
             InsereUltimo(pagina.pagina, memoria);
         else{
-            RemovePrimeiro(memoria);              // Como estamos usando o método LFU, então removemos a página que é menos acessada (que nesse caso vai ser sempre a primeira)
-            InsereUltimo(pagina.pagina, memoria); // E a inserimos no final da fila
+            removeMenosAcessada(memoria);         // Como estamos usando o método LFU, então removemos a página que é menos acessada
+            InsereUltimo(pagina.pagina, memoria); // E inserimos no final da fila
         }
         memoria->misses++;
     }
     else{
         aux->num_acessos++;
-        ordenaPorAcessos(memoria);
+        //ordenaPorAcessos(memoria);
     }
 }
