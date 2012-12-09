@@ -56,7 +56,7 @@ Este relatório descreve como foi implementado uma versão simplificada de um si
     O objetivo principal do trabalho é implementar uma versão simplificada de um sistema de memória virtual (SMV), pois usaremos apenas um nível de paginação, sem caches ou otimizações. Quando houver a necessidade de reposição de páginas, foram utilizadas três políticas de reposição:
 
     \begin{itemize}
-    \item \textbf{FIFO (FirstIn, FirstOut)} - A página que está residade a mais tempo é escolhida para remoção.
+    \item \textbf{FIFO (FirstIn, FirstOut)} - A página que está residente a mais tempo é escolhida para remoção.
     \item \textbf{LRU (Least Recently Used)} - A página acessada a mais tempo deve ser escolhida para remoção.
     \item \textbf{LFU (Least Frequently Used)} - A página com a menor quantidade de acessos deve ser escolhida para remoção.
     \end{itemize}
@@ -68,15 +68,25 @@ Este relatório descreve como foi implementado uma versão simplificada de um si
 \section{MODELAGEM}
 \label{modelagem}
 
+Para simular a memória virtual neste trabalho, foi utilizado um tipo abstrato de dados de lista duplamente encadeada. Foi escolhida esta estrutura pela facilidade de manipulação e pesquisa dos elementos contidos nela.
 
+A abstração da estrutura é a seguinte: a lista representa a memória física e cada uma das suas células representam as páginas que foram carregadas na memória. Assim, utilizando as funções de inserção e remoção da lista encadeada, podemos implementar as políticas de reposição propostas pro trabalho.
 
 \section{SOLUÇÃO PROPOSTA}
 \label{solucao_proposta}
 
+É fornecido na entrada do trabalho o tamanho em bytes da memória física, o tamanho de cada página e $N$ acessos à memória. Cada um desses acesso é referente à posição da memória virtual acessada sequencialmente (para mais detalhes sobre o formato de entrada, consultar o item \ref{entrada} deste trabalho). Porém, para saber em qual página cada acesso se enconta, dividimos a posição de acesso pela quantidade de bytes de cada página. Por exemplo, dada a sequência de acesso \textbf{0 2 4 2 10 1 6 8}, podemos transformar isso para \textbf{0 0 1 0 2 0 1 2}. Assim sabemos qual página deverá estar na memória a cada acesso.
+
+Foi implementado um algoritmo para cada política de reposição (FIFO, LRU e LFU), e todos possuem o mesmo sistema de contagem de \textit{page faults}.
+
+Para o \textbf{FIFO}, a escolha da página a ser removida é a que entrou primeiro, ou seja, a primeira da fila. No \textbf{LRU}, também removemos as páginas que estão no início da fila, pois toda vez que a página é acessada ela vai pro final da fila, assim, seu início contém as páginas que foram acessadas menos recentemente. No \textbf{LFU}, para cada acesso à memória, cada página possui um contador para indicar a quantidade de acessos à ela. Assim, a cada acesso à memória, ordenamos as páginas de acordo com esse contador, então as primeiras páginas da fila serão as que foram menos frequentemente usadas.
+
 \subsection{Algoritmos implementados}
 
+\vspace{0.2 true cm}
+
 \begin{itemize}
- \item \begin{large}\textit{}\end{large}\\
+ \item \begin{large}\textit{void FIFO(TipoLista * memoria, TipoCelula pagina)}\end{large}\\
  \subitem \textbf{Descrição:}
  \subitem \textbf{Parâmetros:}
  \subitem \textbf{Complexidade:} $O(n)$, onde $n$ é .
@@ -85,13 +95,38 @@ Este relatório descreve como foi implementado uma versão simplificada de um si
 \vspace{0.2 true cm}
 
 \begin{itemize}
- \item \begin{large}\textit{}\end{large}\\
+ \item \begin{large}\textit{void LRU(TipoLista * memoria, TipoCelula pagina)}\end{large}\\
  \subitem \textbf{Descrição:}
  \subitem \textbf{Parâmetros:}
  \subitem \textbf{Complexidade:} $O(n^2)$, onde $n$ é o .
 \end{itemize}
 
 \vspace{0.2 true cm}
+
+\begin{itemize}
+ \item \begin{large}\textit{void LFU(TipoLista * memoria, TipoCelula pagina)}\end{large}\\
+ \subitem \textbf{Descrição:}
+ \subitem \textbf{Parâmetros:}
+ \subitem \textbf{Complexidade:} $O(n^2)$, onde $n$ é o .
+\end{itemize}
+
+\vspace{0.2 true cm}
+
+\begin{itemize}
+ \item \begin{large}\textit{void ordenaPorAcessos(TipoLista * memoria)}\end{large}\\
+ \subitem \textbf{Descrição:}
+ \subitem \textbf{Parâmetros:}
+ \subitem \textbf{Complexidade:} $O(n^2)$, onde $n$ é o .
+\end{itemize}
+
+\vspace{0.2 true cm}
+
+\begin{itemize}
+ \item \begin{large}\textit{TipoApontador resideEmMemoria(TipoLista * memoria, int pagina)}\end{large}\\
+ \subitem \textbf{Descrição:}
+ \subitem \textbf{Parâmetros:}
+ \subitem \textbf{Complexidade:} $O(n^2)$, onde $n$ é o .
+\end{itemize}
 
 
 \section{IMPLEMENTAÇÃO}
@@ -142,6 +177,7 @@ O comando para a execução do programa é da forma:
 
 
 \subsubsection{Formato da entrada}
+\label{entrada}
 
 A primeira linha do arquivo de entrada contém o valor \textit{k} de instâncias que o arquivo contém. As $k$ instâncias são definidas em duas linhas cada uma. A primeira linha contem três inteiros: o tamanho em bytes da memória física, o tamanho em bytes de cada página, e o número N de acessos. A linha seguinte contém N inteiros representando as N posições da memória virtual acessadas sequencialmente.
 
@@ -154,6 +190,7 @@ A seguir um arquivo de entrada de exemplo:
 \end{verbatim}
 
 \subsubsection{Formato da saída}
+\label{saida}
 
 O arquivo de saída consiste em $k$ linhas, cada uma representando o resultado de uma instância. Cada linha contém um inteiro que representa o número de falhas utilizando FIFO, LRU e LFU, necessariamente nessa ordem. Um exemplo é mostrado abaixo:
 
