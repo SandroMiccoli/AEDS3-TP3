@@ -25,23 +25,31 @@ TipoApontador resideEmMemoria(TipoLista * memoria, int pagina){
 }
 
 void ordenaPorAcessos(TipoLista * memoria){
-    TipoApontador pagina_aux1, pagina_aux2, pagina_aux3;
+    int min=99999;
 
-    pagina_aux1 = memoria->Primeiro;
-    pagina_aux2 = memoria->Primeiro->Prox;
+    TipoApontador pagina_aux;
+    pagina_aux = memoria->Ultimo;
 
-    while (pagina_aux2 != NULL){
-        if (pagina_aux1->num_acessos > pagina_aux2->num_acessos){
-            pagina_aux3 = pagina_aux1;
-            pagina_aux1 = pagina_aux2;
-            pagina_aux2 = pagina_aux3;
+    while (pagina_aux != NULL){
+        if (pagina_aux->num_acessos < min){
+            Remove(memoria, pagina_aux);
+            InserePrimeiro(pagina_aux->pagina, memoria);
+            min = pagina_aux->num_acessos;
+
         }
-
-        pagina_aux1 = pagina_aux1->Prox;
-
-        pagina_aux2 = pagina_aux2->Prox;
+        else if (pagina_aux->num_acessos == min){
+            //printf("PAG ATUAL: %d, PAG ANTERIOR: %d\n",pagina_aux->pagina, pagina_aux->Anterior->pagina);
+            if (pagina_aux->pagina < pagina_aux->Anterior->pagina && pagina_aux->Anterior != NULL){
+                Remove(memoria, pagina_aux);
+                InserePrimeiro(pagina_aux->pagina, memoria);
+            }
+            else if (pagina_aux->pagina > pagina_aux->Anterior->pagina && pagina_aux->Anterior != NULL){
+                Remove(memoria, pagina_aux->Anterior);
+                InserePrimeiro(pagina_aux->Anterior->pagina, memoria);
+            }
+        }
+        pagina_aux = pagina_aux -> Anterior;
     }
-
 }
 
 void FIFO(TipoLista * memoria, TipoCelula pagina){
