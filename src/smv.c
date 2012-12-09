@@ -25,19 +25,21 @@ TipoApontador resideEmMemoria(TipoLista * memoria, int pagina){
 }
 
 void ordenaPorAcessos(TipoLista * memoria){
-    int min=99999;
+    TipoApontador pagina_aux1, pagina_aux2, pagina_aux3;
 
-    TipoApontador aux;
-    aux = memoria->Primeiro -> Prox;
+    pagina_aux1 = memoria->Primeiro;
+    pagina_aux2 = memoria->Primeiro->Prox;
 
-    while (aux != NULL){
-        if (aux->num_acessos < min){
-            Remove(memoria, aux);
-            InserePrimeiro(aux->pagina, memoria);
-            min = aux->num_acessos;
-
+    while (pagina_aux2 != NULL){
+        if (pagina_aux1->num_acessos > pagina_aux2->num_acessos){
+            pagina_aux3 = pagina_aux1;
+            pagina_aux1 = pagina_aux2;
+            pagina_aux2 = pagina_aux3;
         }
-        aux = aux -> Prox;
+
+        pagina_aux1 = pagina_aux1->Prox;
+
+        pagina_aux2 = pagina_aux2->Prox;
     }
 
 }
@@ -88,8 +90,8 @@ void LFU(TipoLista * memoria, TipoCelula pagina){
         if (memoria->paginas_livres > 0)
             InsereUltimo(pagina.pagina, memoria);
         else{
-            RemovePrimeiro(memoria);              // Como estamos usando o método LRU, então removemos a página acessada a mais tempo (a primeira inserida)
-            InsereUltimo(pagina.pagina, memoria); // E inserimos no final da fila
+            RemovePrimeiro(memoria);              // Como estamos usando o método LFU, então removemos a página que é menos acessada (que nesse caso vai ser sempre a primeira)
+            InsereUltimo(pagina.pagina, memoria); // E a inserimos no final da fila
         }
         memoria->misses++;
     }
