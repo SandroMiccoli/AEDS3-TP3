@@ -58,6 +58,8 @@ int main(int argc, char *argv[]){
 
                 pagina_atual.pagina = posicao_acessada / tam_pagina;
 
+                pagina_atual.num_acessos = 1;
+
                 FIFO(&memoria_fifo, pagina_atual);
                 LRU(&memoria_lru, pagina_atual);
                 LFU(&memoria_lfu, pagina_atual);
