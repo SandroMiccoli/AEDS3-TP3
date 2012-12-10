@@ -24,6 +24,7 @@
 \usepackage[brazil]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{listings}
+\usepackage{subfigure}
 
 \usepackage{alltt}
 \renewcommand{\ttdefault}{txtt}
@@ -75,9 +76,9 @@ A abstração da estrutura é a seguinte: a lista representa a memória física 
 \section{SOLUÇÃO PROPOSTA}
 \label{solucao_proposta}
 
-É fornecido na entrada do trabalho o tamanho em bytes da memória física, o tamanho de cada página e $N$ acessos à memória. Cada um desses acesso é referente à posição da memória virtual acessada sequencialmente (para mais detalhes sobre o formato de entrada, consultar o item \ref{entrada} deste trabalho). Porém, para saber em qual página cada acesso se enconta, dividimos a posição de acesso pela quantidade de bytes de cada página. Por exemplo, dada a sequência de acesso \textbf{0 2 4 2 10 1 6 8}, podemos transformar isso para \textbf{0 0 1 0 2 0 1 2}. Assim sabemos qual página deverá estar na memória a cada acesso.
+É fornecido na entrada do trabalho o tamanho em bytes da memória física, o tamanho de cada página e $N$ acessos à memória. Cada um desses acesso é referente à posição da memória virtual acessada sequencialmente (para mais detalhes sobre o formato de entrada, consultar o item \ref{entrada} deste trabalho). Porém, para saber em qual página cada acesso se enconta, dividimos a posição de acesso pela quantidade de bytes de cada página. Por exemplo, dada a sequência de acesso \textbf{0 2 4 2 10 1 6 8}, podemos simplificar isso para \textbf{0 0 1 0 2 0 1 2}. Assim sabemos qual página deverá estar na memória a cada acesso.
 
-Foi implementado um algoritmo para cada política de reposição (FIFO, LRU e LFU), e todos possuem o mesmo sistema de contagem de \textit{page faults}.
+Na situação descrita acima, chegamos às páginas \textbf{0 0 1 0 2 0 1 2}; porém, com apenas 8 bytes na memória principal, podemos carregar simultâneamente apenas duas páginas, pois cada uma possui 4 bytes de tamanho. Por esse motivo precisamos adotar políticas que removam uma certa página e a troquem por outra da memória principal. Para solucionar esse problema, foi implementado um algoritmo para cada política de reposição (FIFO, LRU e LFU).
 
 Para o \textbf{FIFO}, a escolha da página a ser removida é a que entrou primeiro, ou seja, a primeira da fila. No \textbf{LRU}, também removemos as páginas que estão no início da fila, pois toda vez que a página é acessada ela vai pro final da fila, assim, seu início contém as páginas que foram acessadas menos recentemente. No \textbf{LFU}, para cada acesso à memória, cada página possui um contador para indicar a quantidade de acessos à ela. Assim, a cada acesso à memória, ordenamos as páginas de acordo com esse contador, então as primeiras páginas da fila serão as que foram menos frequentemente usadas.
 
@@ -87,45 +88,45 @@ Para o \textbf{FIFO}, a escolha da página a ser removida é a que entrou primei
 
 \begin{itemize}
  \item \begin{large}\textit{void FIFO(TipoLista * memoria, TipoCelula pagina)}\end{large}\\
- \subitem \textbf{Descrição:}
- \subitem \textbf{Parâmetros:}
- \subitem \textbf{Complexidade:} $O(n)$, onde $n$ é .
+ \subitem \textbf{Descrição:} "First In, First Out"; a página que entrou primeiro na memória é a primeira a ser removida.
+ \subitem \textbf{Parâmetros:} Memória principal e página atual que deveria estar na memória
+ \subitem \textbf{Complexidade:} $O(n)$, onde $n$ é o número de páginas que cabe na memória.
 \end{itemize}
 
 \vspace{0.2 true cm}
 
 \begin{itemize}
  \item \begin{large}\textit{void LRU(TipoLista * memoria, TipoCelula pagina)}\end{large}\\
- \subitem \textbf{Descrição:}
- \subitem \textbf{Parâmetros:}
- \subitem \textbf{Complexidade:} $O(n^2)$, onde $n$ é o .
+ \subitem \textbf{Descrição:} "Least Recently Used"; a página que foi acessada menos recentemente que será a escolha pra ser removida.
+ \subitem \textbf{Parâmetros:} Memória principal e página atual que deveria estar na memória
+ \subitem \textbf{Complexidade:} $O(n)$, onde $n$ é o número de páginas que cabe na memória.
 \end{itemize}
 
 \vspace{0.2 true cm}
 
 \begin{itemize}
  \item \begin{large}\textit{void LFU(TipoLista * memoria, TipoCelula pagina)}\end{large}\\
- \subitem \textbf{Descrição:}
- \subitem \textbf{Parâmetros:}
- \subitem \textbf{Complexidade:} $O(n^2)$, onde $n$ é o .
+ \subitem \textbf{Descrição:} "Least Frequently Used"; a página que é utilizada menos frequentemente que será removida.
+ \subitem \textbf{Parâmetros:} Memória principal e página atual que deveria estar na memória
+ \subitem \textbf{Complexidade:} $O(n)$, onde $n$ é o número de páginas que cabe na memória.
 \end{itemize}
 
 \vspace{0.2 true cm}
 
 \begin{itemize}
- \item \begin{large}\textit{void ordenaPorAcessos(TipoLista * memoria)}\end{large}\\
- \subitem \textbf{Descrição:}
- \subitem \textbf{Parâmetros:}
- \subitem \textbf{Complexidade:} $O(n^2)$, onde $n$ é o .
+ \item \begin{large}\textit{void removeMenosAcessada(TipoLista * memoria)}\end{large}\\
+ \subitem \textbf{Descrição:} Procura pela página com menor número de acessos e a remove da memória.
+ \subitem \textbf{Parâmetros:} Memória princial
+ \subitem \textbf{Complexidade:} $O(n)$, onde $n$ é o número de páginas que cabe na memória.
 \end{itemize}
 
 \vspace{0.2 true cm}
 
 \begin{itemize}
  \item \begin{large}\textit{TipoApontador resideEmMemoria(TipoLista * memoria, int pagina)}\end{large}\\
- \subitem \textbf{Descrição:}
- \subitem \textbf{Parâmetros:}
- \subitem \textbf{Complexidade:} $O(n^2)$, onde $n$ é o .
+ \subitem \textbf{Descrição:} Percorre toda a memória para verificar se a página se encontra na memória. Retorna um apontador pra essa página.
+ \subitem \textbf{Parâmetros:} Memória principal e um inteiro que representa a página a ser encontrada
+ \subitem \textbf{Complexidade:} $O(n)$, onde $n$ é o número de páginas que cabe na memória.
 \end{itemize}
 
 
@@ -202,9 +203,20 @@ O arquivo de saída consiste em $k$ linhas, cada uma representando o resultado d
 \section{AVALIAÇÃO EXPERIMENTAL}
 \label{avaliacao_experimental}
 
-Para testar os algoritmos foi feito o seguinte: um script foi criado que, utilizando um dicionário de aproximadamente 2000 palavras, geraria uma sequência de palavras, concatenadas ou não, para testar cada tipo de cenário.
+As análises feitas para para este trabalho foram todas detalhadas na especificação. O que foi pedido foi o seguinte:
 
-Foi realizado uma série de testes, com entradas crescentes, da maneira que é explicado nas próximas seções.
+\begin{itemize}
+\item Calcular a localidade de referência temporal.
+\item Calcular a localidade de referência espacial.
+\item Gerar o histograma das distâncias de acessos.
+\item Gerar o histograma das distâncias de pilha.
+\item Gerar um gráfico "Tamanho da página" x "Bytes movimentados".
+\item Gerar um gráfico "Tamanho da memória" x "Falhas".
+\end{itemize}
+
+Para realizar essas análise foi diponibilizado um arquivo com uma configuração diferente no fórum da disciplina. Esse arquivo possuia apenas acessos à memória, sem informações de tamanho da memória ou da página. Foi criado dois scripts que auxiliaram na execução destas análises. O primeiro de localidade espacial e outro de localidade temporal.
+
+Nas próximas seções iremos descrever a máquina utilizada para os testes e o resultado de cada item descrito acima.
 
 \subsection{Máquina utilizada}
 \label{maquina}
@@ -218,104 +230,93 @@ MemTotal:       3980124 kB
 \end{verbatim}
 
 
-\subsection{Testes}
-\label{testes}
+\subsection{Localidade de referência temporal}
+\label{loc_ref_temp}
 
-Então foi pensado em cinco testes a serem executados, um com apenas uma palavra pra ser testada, outro com 5 palavras concatenadas, um com 10 palavras concatenadas, um com 50 palavras concatenadas e, por último, um teste com 100 palavras concatenadas. Assim teríamos testes com palavras relativamente pequenas e com uma série de caracteres relativamente grandes. Assim poderíamos ver o comportamento de cada paradigma para tanto entradas pequenas quando grandes.
+A Tabela \ref{tab_ref_temp} mostra os resultados que obtivemos para o cálculo da localidade de referência temporal.
 
-O gráfico que será mostrado em cada teste mostra especificamente a quantidade de caracteres (em porcentagem) a mais que o algoritmo guloso teve de inserir que o algoritmo de programação dinâmica. Assim podemos fazer uma análise entre a solução não-ótima e a solução ótima.
+\begin{table}[h!]
+\centering
+\begin{footnotesize}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Instância}  & \textbf{Temporal}  \\ \hline
+1 & 19.67 \\ \hline
+2 & 14.10 \\ \hline
+3 & 21.08 \\ \hline
+4 & 10.67 \\ \hline
 
-Dentro de cada subseção será dado um exemplo de entrada para cada teste e será detalhado melhor as características de cada um.
-
-\subsubsection{Testes pequenos - Uma palavra}
-\label{pequeno}
-
-A quantidade média de caracteres neste teste ficou entre aproximadamente $10$. A seguir um exemplo das palavras utilizadas no teste:
-
-\begin{verbatim}
-abbreviations
-abandoned
-youthfulness
-...
-\end{verbatim}
-
-
-    \begin{figure}[h!]
-        \centering
-        \includegraphics[width=0.6\textwidth]{umapalavra.png}
-        \caption{Uma palavra - Quantidade de caracteres a mais (em \%)}
-        \label{umapalavra}
-    \end{figure}
-
-    Na Figura \ref{umapalavra} é perceptível que a grande maioria dos testes não houve diferença entre a solução gulosa e a solução ótima. Porém, quando houve, a diferença de caracteres cresceu bastante, chegando até a $200\%$.
-
-    Para não alterar demais a visualização do gráfico, um resultado foi removido pois a diferença de caracteres era de $800\%$; mas, de uma série de 200 palavras testadas, apenas uma que teve esse comportamento. Isso ocorreu quando o algoritmo de programação dinâmica teve de inserir apenas uma letra e o guloso inseriu 9.
+\end{tabular}
+\end{footnotesize}
+\caption{Localidade de referência temporal \label{tab_ref_temp}}
+\end{table}
 
 
-\subsubsection{Testes médios - Cinco palavras concatenadas}
-\label{medio}
+\subsection{Localidade de referência espacial}
+\label{loc_ref_esp}
 
-Na Figura \ref{cincopalavras} pode-se ver o resultado do teste que utilizou uma série de palavras concatenadas, neste caso, cinco palavras. Cada instância ficou com aproximadamente $30$ até $40$ caracteres. A seguir um exemplo das palavras usadas no teste:
-
-\begin{verbatim}
-abatedabnormallywondrousxeroxingzero
-deifiedwonabolishmentsabbottzenith
-yankeewizardwoefulabaseswrangle
-...
-\end{verbatim}
+A Tabela \ref{tab_ref_esp} mostra os resultados que obtivemos para o cálculo da localidade de referência espacial. É gritante a diferença entre o resultado da instância 2 pras outras, mas isso ocorreu pois ela tem um padrão bem peculiar. A grande maioria dos acessos são sequenciais na memória (posição 8, depois 7, depois 6, depois 5), isso caracteriza uma boa localidade de referência espacial.
 
 
-    \begin{figure}[h!]
-        \centering
-        \includegraphics[width=0.6\textwidth]{cincopalavras2.png}
-        \caption{Cinco palavras - Quantidade de caracteres a mais (em \%)}
-        \label{cincopalavras}
-    \end{figure}
+\begin{table}[h!]
+\centering
+\begin{footnotesize}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Instância}  & \textbf{Espacial}  \\ \hline
+1 &  16.69\\ \hline
+2 & 2.55\\ \hline
+3 &  10.46\\ \hline
+4 &  19.71\\ \hline
 
-\subsubsection{Testes médios - Dez palavras concatenadas}
-\label{medio10}
-
-Na Figura \ref{dezpalavras} consta o resultado do teste que utilizou uma série de caracteres que eram formados por palavras concatenadas umas nas outras, neste caso, 10 palavras no total. Cada instância ficou com aproximadamente $60$ até $80$ caracteres. A seguir um exemplo das palavras usadas no teste:
-
-\begin{verbatim}
-woveyugoslavianyoungsterreferyuridevovedwonderabashingaboveyellowed
-wontwritesabaseszuluwrestyeayesterdayabbreviatingzoologicallyzone
-yorktownwrittenaberrationsaibohphobiaababawrappedwolffaberrantablewrote
-...
-\end{verbatim}
+\end{tabular}
+\end{footnotesize}
+\caption{Localidade de referência temporal \label{tab_ref_esp}}
+\end{table}
 
 
-    \begin{figure}[h!]
-        \centering
-        \includegraphics[width=0.6\textwidth]{dezpalavras3.png}
-        \caption{Dez palavras - Quantidade de caracteres a mais (em \%)}
-        \label{dezpalavras}
-    \end{figure}
+\subsection{Histogramas de Distância de Acessos}
+\label{hist_dist_acess}
 
 
-\subsubsection{Testes grandes - Cinquenta palavras concatenadas}
-\label{grande50}
+Na Figura \ref{img_dist_acess} agrupamos os quatro histogramas que foram pedidos. Logo abaixo é possível ver o resultado para cada uma das instâncias.
 
-Na Figura \ref{cinquentapalavras} aumentamos a quantidade de palavras concatenadas para cinquenta. Neste teste não iremos mostrar as palavras concatenadas, mas cada uma ficou com $350$ até $450$ caracteres.
+Na instância 1 e 4 ocorre uma distribuição maior dos acessos. Na primeira os ápices se encontram nas menores distâcias, já na outra o ápice ocorre na distância 32. As distâncais de acesso da instância 1 se encontram muito melhor distribuídas que a instância 4.
 
-    \begin{figure}[h!]
-        \centering
-        \includegraphics[width=0.6\textwidth]{cinquentapalavras.png}
-        \caption{Cinquenta palavras - Quantidade de caracteres a mais (em \%)}
-        \label{cinquentapalavras}
-    \end{figure}
+Já as instâncias 2 e 3 possuem uma simularidade: quase a totalidade dos acessos se encontram à distância 1. Isso indica que a localidade espacial deles é melhor que a das outras instâncias, por não terem que caminhar tanto na memória para acessar o próximo valor.
 
-\subsubsection{Testes grandes - Cem palavras concatenadas}
-\label{grande100}
+\begin{figure}
+\centering
+\mbox{\subfigure{\includegraphics[width=0.6\textwidth]{acessos1.png}}\quad
+\subfigure{\includegraphics[width=0.6\textwidth]{acessos2.png} }}
+\mbox{\subfigure{\includegraphics[width=0.6\textwidth]{acessos3.png} }\quad
+\subfigure{\includegraphics[width=0.6\textwidth]{acessos4.png} }}
+\caption{Distâncias de Acessos de todas as instâncias} \label{img_dist_acess}
+\end{figure}
 
-Na Figura \ref{cempalavras}, no último teste, concatenamos cem palavras. Não iremos mostrar as palavras concatenadas, mas cada uma ficou com uma média de $900$ caracteres.
 
-    \begin{figure}[h!]
-        \centering
-        \includegraphics[width=0.6\textwidth]{cempalavras.png}
-        \caption{Cem palavras - Quantidade de caracteres a mais (em \%)}
-        \label{cempalavras}
-    \end{figure}
+\subsection{Histogramas de Distância de Pilha}
+\label{hist_dist_pilha}
+
+
+Na Figura \ref{img_dist_pilha} foi agrupado os histogramas referentes ao calculo de distância de pilha de cada instância.
+
+Nessa situação a instância que apresentou o melhor resultado foi a instância 2, pois a distância na pilha que mais correu foi o valor 3. Todas as outras distâncias ficaram bem distribuídas no histograma.
+
+A segunda melhor instância nesse quesito seria a instância 4, pois muitos acessos se concentram em distâncias menores que 5. O resto dos acessos também se distribuíram bem pelo resto das distâncias.
+
+As piores instâncias nessa análise foram as instâncias 1 e 3. A instãncia 1 possui muitos acessos de distâncias variadas, desde as menores até as maiores. Já a instância 3, apesar de possuir o ápice de acessos com distância de pilha igual a 1, pussui dezenas de acessos com distâncias maiores que 40, o que prejudica muito seu resultado final.
+
+\begin{figure}
+\centering
+\mbox{\subfigure{\includegraphics[width=0.6\textwidth]{pilha1.png}}\quad
+\subfigure{\includegraphics[width=0.6\textwidth]{pilha2.png} }}
+\mbox{\subfigure{\includegraphics[width=0.6\textwidth]{pilha3.png} }\quad
+\subfigure{\includegraphics[width=0.6\textwidth]{pilha4.png} }}
+\caption{Distâncias de Pilha de todas as instâncias} \label{img_dist_pilha}
+\end{figure}
+
+
 
 \subsection{Resultado}
 
