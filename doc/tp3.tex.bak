@@ -76,9 +76,9 @@ A abstração da estrutura é a seguinte: a lista representa a memória física 
 \section{SOLUÇÃO PROPOSTA}
 \label{solucao_proposta}
 
-É fornecido na entrada do trabalho o tamanho em bytes da memória física, o tamanho de cada página e $N$ acessos à memória. Cada um desses acesso é referente à posição da memória virtual acessada sequencialmente (para mais detalhes sobre o formato de entrada, consultar o item \ref{entrada} deste trabalho). Porém, para saber em qual página cada acesso se encontra, dividimos a posição de acesso pela quantidade de bytes de cada página. Por exemplo, dada a sequência de acesso \textbf{0 2 4 2 10 1 6 8}, podemos simplificar isso para \textbf{0 0 1 0 2 0 1 2}. Assim sabemos qual página deverá estar na memória a cada acesso.
+É fornecido na entrada do trabalho o tamanho em bytes da memória física, o tamanho de cada página e $N$ acessos à memória. Cada um desses acesso é referente à posição da memória virtual acessada sequencialmente (para mais detalhes sobre o formato de entrada, consultar o item \ref{entrada} deste trabalho). Porém, para saber em qual página cada acesso se enconta, dividimos a posição de acesso pela quantidade de bytes de cada página. Por exemplo, dada a sequência de acesso \textbf{0 2 4 2 10 1 6 8}, podemos simplificar isso para \textbf{0 0 1 0 2 0 1 2}. Assim sabemos qual página deverá estar na memória a cada acesso.
 
-Na situação descrita acima, chegamos às páginas \textbf{0 0 1 0 2 0 1 2}; porém, com apenas 8 bytes na memória principal, podemos carregar simultaneamente apenas duas páginas, pois cada uma possui 4 bytes de tamanho. Por esse motivo precisamos adotar políticas que removam uma certa página e a troquem por outra da memória principal. Para solucionar esse problema, foi implementado um algoritmo para cada política de reposição (FIFO, LRU e LFU).
+Na situação descrita acima, chegamos às páginas \textbf{0 0 1 0 2 0 1 2}; porém, com apenas 8 bytes na memória principal, podemos carregar simultâneamente apenas duas páginas, pois cada uma possui 4 bytes de tamanho. Por esse motivo precisamos adotar políticas que removam uma certa página e a troquem por outra da memória principal. Para solucionar esse problema, foi implementado um algoritmo para cada política de reposição (FIFO, LRU e LFU).
 
 Para o \textbf{FIFO}, a escolha da página a ser removida é a que entrou primeiro, ou seja, a primeira da fila. No \textbf{LRU}, também removemos as páginas que estão no início da fila, pois toda vez que a página é acessada ela vai pro final da fila, assim, seu início contém as páginas que foram acessadas menos recentemente. No \textbf{LFU}, para cada acesso à memória, cada página possui um contador para indicar a quantidade de acessos à ela. Assim, a cada acesso à memória, ordenamos as páginas de acordo com esse contador, então as primeiras páginas da fila serão as que foram menos frequentemente usadas.
 
@@ -117,7 +117,7 @@ Para o \textbf{FIFO}, a escolha da página a ser removida é a que entrou primei
 \begin{itemize}
  \item \begin{large}\textit{void removeMenosAcessada(TipoLista * memoria)}\end{large}\\
  \subitem \textbf{Descrição:} Procura pela página com menor número de acessos e a remove da memória.
- \subitem \textbf{Parâmetros:} Memória principal
+ \subitem \textbf{Parâmetros:} Memória princial
  \subitem \textbf{Complexidade:} $O(n)$, onde $n$ é o número de páginas que cabe na memória.
 \end{itemize}
 
@@ -133,7 +133,7 @@ Para o \textbf{FIFO}, a escolha da página a ser removida é a que entrou primei
 \subsection{COMPLEXIDADE GERAL}
 \label{complexidades}
 
-Cada complexidade separada dos algoritmos será $O(n)$, onde $n$ é o número de páginas na memória, igual para cada um deles. Porém, a complexidade temporal do programa deve levar em consideração a quantidade instâncias, de páginas e de acessos.
+Cada complexidade separada dos algortimos será $O(n)$, onde $n$ é o número de páginas na memória, igual para cada um deles. Porém, a complexidade temporal do programa deve levar em consideração a quantidade instâncias, de páginas e de acessos.
 
 Assim, nosso cálculo de complexidade poderia ser definido como \textit{número de páginas * número de acessos * 3}. Nesses três parâmetros, o que tem um maior peso seria os acessos, pois ele que irá dominar todos os outros. Por isso, podemos dizer então, que a complexidade temporal final do programa será de $O(n)$, porém $n$ aqui será a quantidade de acessos feitos.
 
@@ -148,7 +148,6 @@ Assim, nosso cálculo de complexidade poderia ser definido como \textit{número 
 \item \textbf{tp3.c} Arquivo principal do programa. Lê os arquivos de entrada, calcula os \textit{page faults} pra cada política e escreve o resultado em um arquivo de saída.
 \item \textbf{lista.c} TAD da uma lista duplamente encadeada. Contém funções de manipulação (criação, inserção, remoção e liberação de memória), e também de impressão e cópia.
 \item \textbf{smv.c} Contém a implementação das políticas de reposição FIFO, LRU, LFU.
-\item \textbf{arquivos.c} Um tipo abstrato de dados de manipulação de arquivos, contendo funções de abertura, leitura, escrita e fechamento.
 \end{itemize}
 
 \subsubsection{Arquivos .h}
@@ -156,7 +155,6 @@ Assim, nosso cálculo de complexidade poderia ser definido como \textit{número 
 \begin{itemize}
 \item \textbf{lista.h} TAD da uma lista duplamente encadeada. Contém a definição da estrutura e das funções.
 \item \textbf{smv.h} Contém a definição das políticas de reposição FIFO, LRU, LFU.
-\item \textbf{arquivos.h} Definição da das funções utilizadas para ler, escrever e fechar corretamente um arquivo.
 \end{itemize}
 
 \subsection{Compilação}
@@ -223,7 +221,7 @@ As análises feitas para para este trabalho foram todas detalhadas na especifica
 \item Gerar um gráfico "Tamanho da memória" x "Falhas".
 \end{itemize}
 
-Para realizar essas análise foi disponibilizado um arquivo com uma configuração diferente no fórum da disciplina. Esse arquivo possuía apenas acessos à memória, sem informações de tamanho da memória ou da página. Foi criado dois scripts que auxiliaram na execução destas análises. O primeiro de localidade espacial e outro de localidade temporal.
+Para realizar essas análise foi diponibilizado um arquivo com uma configuração diferente no fórum da disciplina. Esse arquivo possuia apenas acessos à memória, sem informações de tamanho da memória ou da página. Foi criado dois scripts que auxiliaram na execução destas análises. O primeiro de localidade espacial e outro de localidade temporal.
 
 Nas próximas seções iremos descrever a máquina utilizada para os testes e o resultado de cada item descrito acima.
 
@@ -290,9 +288,9 @@ A Tabela \ref{tab_ref_esp} mostra os resultados que obtivemos para o cálculo da
 
 Na Figura \ref{img_dist_acess} agrupamos os quatro histogramas que foram pedidos. Logo abaixo é possível ver o resultado para cada uma das instâncias.
 
-Na instância 1 e 4 ocorre uma distribuição maior dos acessos. Na primeira os ápices se encontram nas menores distâncias, já na outra o ápice ocorre na distância 32. As distanciais de acesso da instância 1 se encontram muito melhor distribuídas que a instância 4.
+Na instância 1 e 4 ocorre uma distribuição maior dos acessos. Na primeira os ápices se encontram nas menores distâcias, já na outra o ápice ocorre na distância 32. As distâncais de acesso da instância 1 se encontram muito melhor distribuídas que a instância 4.
 
-Já as instâncias 2 e 3 possuem uma similaridade: quase a totalidade dos acessos se encontram à distância 1. Isso indica que a localidade espacial deles é melhor que a das outras instâncias, por não terem que caminhar tanto na memória para acessar o próximo valor.
+Já as instâncias 2 e 3 possuem uma simularidade: quase a totalidade dos acessos se encontram à distância 1. Isso indica que a localidade espacial deles é melhor que a das outras instâncias, por não terem que caminhar tanto na memória para acessar o próximo valor.
 
 \begin{figure}
 \centering
@@ -314,7 +312,7 @@ Nessa situação a instância que apresentou o melhor resultado foi a instância
 
 A segunda melhor instância nesse quesito seria a instância 4, pois muitos acessos se concentram em distâncias menores que 5. O resto dos acessos também se distribuíram bem pelo resto das distâncias.
 
-As piores instâncias nessa análise foram as instâncias 1 e 3. A instância 1 possui muitos acessos de distâncias variadas, desde as menores até as maiores. Já a instância 3, apesar de possuir o ápice de acessos com distância de pilha igual a 1, possui dezenas de acessos com distâncias maiores que 40, o que prejudica muito seu resultado final.
+As piores instâncias nessa análise foram as instâncias 1 e 3. A instãncia 1 possui muitos acessos de distâncias variadas, desde as menores até as maiores. Já a instância 3, apesar de possuir o ápice de acessos com distância de pilha igual a 1, pussui dezenas de acessos com distâncias maiores que 40, o que prejudica muito seu resultado final.
 
 \begin{figure}
 \centering
@@ -329,13 +327,13 @@ As piores instâncias nessa análise foram as instâncias 1 e 3. A instância 1 
 \subsection{Tamanho da página x Bytes Movimentados}
 \label{tam_pag_bytes_mov}
 
-Na Figura \ref{tam_pag_bytes_mov} temos a relação de "Tamanho da página x Bytes Movimentados". Com essas informações podemos analisar o \textit{trade-off} entre o tamanho da página e o volume transferido entre disco e memória. Como foi dito na especificação do trabalho "Páginas maiores irão certamente diminuir o número de falhas, porém vão causar o carregamento desnecessário de muitos dados", podemos verificar isso ocorrendo de fato em nossos testes.
+Na Figura \ref{tam_pag_bytes_mov} temos a relação de "Tamanho da página x Bytes Movimentados". Com essas informações podemos analisar o \textit{trade-off} entre o tamanho da página e o volume transferido entre disco e memória. Como foi dito na especificação do trabalho "Páginas maiores irão certamente diminuir o número de falhas, porém vão causar o carregamento desncessário de muitos dados", podemos verificar isso ocorrendo de fato em nossos testes.
 
-A política adotada foi a seguinte: foi fixado o tamanho da memória em 256 bytes, e então variamos o tamanho de cada página (sempre na potência de 2), de 1 até 256. Para páginas pequenas (1, 2, 4, 8 bytes), podemos ver que poucas falhas ocorreram, então consequentemente, poucos dados foram movimentados. Já no caso de páginas maiores (128, 256 bytes), a quantidade de falhas reduziu drasticamente, porém a quantidade de bytes movimentados também cresceu vertiginosamente.
+A política adotada foi a seguinte: foi fixado o tamanho da memória em 256 bytes, e então variamos o tamanho de cada página (sempre na potência de 2), de 1 até 256. Para páginas pequenas (1, 2, 4, 8 bytes), podemos ver que poucas falhas ocorreram, então consequentemente, poucos dados foram movimentados. Já no caso de páginas maiores (128, 256 bytes), a quantidade de falhas reduziu drásticamente, porém a quantidade de bytes movimentados também cresceu vertiginosamente.
 
 A performance de cada uma das políticas de reposição nessa situação foi igual para todas. Todas obtiveram o mesmo número de falhas e, consequentemente, a mesma quantidade de bytes movimentados.
 
-O tamanho da página, para memória fixa em 256 bytes, só começou a ser significativo quando chegou em 128 bytes, metade do tamanho da memória. Até então, a quantidade de bytes movimentados tinha crescido, porém de forma lenta. Então podemos dizer que o tamanho ideal da página pode ser definido como no máximo $1/4$ do tamanho da memória física disponível.
+O tamanho da página, para memória fixa em 256 bytes, só começou a ser significativo quando chegou em 128 bytes, metade do tamanho da meḿoria. Até então, a quantidade de bytes movimentados tinha crescido, porém de forma lenta. Então podemos dizer que o tamanho ideal da página pode ser definido como no máximo $1/4$ do tamanho da memória física disponível.
 
    \begin{figure}
         \centering
@@ -349,7 +347,7 @@ O tamanho da página, para memória fixa em 256 bytes, só começou a ser signif
 \label{tam_mem_page_faults}
 
 
-Na Figura \ref{tam_mem_page_faults} temos a relação de "Tamanho da memória x Page Faults". O objetivo desta análise seria estimar o tamanho ideal de memória física disponível. Obviamente, quanto mais memória menos falhas ocorrerão, porém este teste deixou visível a partir de qual momento já é interessante determinar qual a melhor quantidade de memória necessária para obter menos falhas.
+Na Figura \ref{tam_mem_page_faults} temos a relação de "Tamanho da memória x Page Faults". O objetivo desta análise seria estimar o tamanho ideal de memória física disponível. Obviamente, quanto mais memória menos falhas ocorrerão, porém este teste deixou vísivel a partir de qual momento já é interessante determinar qual a melhor quantidade de memória necessária para obter menos falhas.
 
 A política adotada neste teste foi o seguinte: foi fixado o tamanho da página em 4 bytes, após isso, variamos o tamanho da memória (sempre na potência de 2), de 4 até 256. E podemos perceber, como já era esperado, que quanto maior a memória disponível, menor a quantidade de \textit{page faults}.
 
@@ -366,11 +364,11 @@ Nessa situação, com páginas fixas em 4 bytes, um tamanho de memória ideal po
 
 \subsection{Resultado}
 
-De acordo com as nossas análises feitas, podemos estimar os valores ideias para o tamanho da memória física e o tamanho das páginas, para obter o menor número de falhas possível para cada uma das quatro sequências de acessos disponibilizadas para os testes.
+De acordo com as nossas análises feitas, podemos estimar os valores ideias para o tamanho da memória física e o tamanho das páginas, para obter o menor número de falhas possível para cada uma das quatro sequências de acessos disponibilisadas para os testes.
 
 Na Figura \ref{tam_pag_bytes_mov} o desempenho de cada uma das políticas é igual para as quatro instâncias, obtendo a mesma quantidade de \textit{page faults} e, consequentemente, de bytes movimentados. Isso ocorreu pois com a quantidade de memória estabelecida, independente da política escolhida, a mesma quantidade de \textit{page faults} ocorreria.
 
-Na Figura \ref{tam_mem_page_faults} é possível ver que a Instância 1 e 4 obtiveram os piores resultados. Isso ocorreu justamente pela caraterística de cada uma. A sequência de acessos nessas instâncias ocorreram de uma forma mais caótica, quando posições muito distantes umas das outras foram acessadas em sequência. Já no caso das Instâncias 2 e 3 ocorre o contrário, as sequências de acessos ocorrem de uma maneira mais sequencial, com uma localidade de referência espacial melhor, pois dados próximos são acessados em um curto espaço de tempo.
+Na Figura \ref{tam_mem_page_faults} é possível ver que a Instância 1 e 4 obitveram os piores resultados. Isso ocorreu justamente pela caratéristica de cada uma. A sequência de acessos nessas instâncias ocorreram de uma forma mais caótica, quando posições muito distantes umas das outras foram acessadas em sequência. Já no caso das Instâncias 2 e 3 ocorre o contrário, as sequências de acessos ocorrem de uma maneira mais sequencial, com uma localidade de referência espacial melhor, pois dados próximos são acessados em um curto espaço de tempo.
 
 
 \section{CONCLUSÃO}
@@ -380,9 +378,9 @@ No geral, a relação entre cada uma das políticas se manteve praticamente cons
 
 Foi possível perceber também que sequências de acessos com perfis mais sequenciais, ou seja, com localidade de referência espacial melhores, possuem um resultado melhor, independente do tamanho da memória disponibilizado.
 
-Para perfis mais desordenados, com localidade de referência espacial pior, a quantidade de \textit{page faults} para qualquer uma das políticas aumenta consideravelmente.
+Para perfis mais desorgenados, com localidade de referência espacial pior, a quantidade de \textit{page faults} para qualquer uma das políticas aumenta consideravelmente.
 
-Acredito que os objetivos do trabalho foram concluídos com sucesso, uma vez que o sistema de memória virtual (SMV) foi implementado com sucesso e foi possível exercitar, mais uma vez, os conceitos de gerenciamento de memória. Além disso, na parte experimental, foi possível ver, na prática, a localidade de referência de diferentes tipos de sequências de acessos e como cada política trabalha com cada um desses perfis.
+Acredito que os objetivos do trabalho foram concluídos com sucesso, uma vez que o sistema de memória virtual (SMV) foi implementado com sucesso e foi possível exercitar, mais uma vez, os conceitos de gerenciamento de memória. Além disso, na parte experimental, foi possível ver, na prática, a localidade de referência de diferentes tipos de sequẽncias de acessos e como cada política trabalha com cada um desses perfis.
 
 
 \bibliographystyle{sbc}
