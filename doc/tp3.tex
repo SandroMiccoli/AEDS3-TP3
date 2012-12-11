@@ -82,6 +82,7 @@ Na situação descrita acima, chegamos às páginas \textbf{0 0 1 0 2 0 1 2}; po
 
 Para o \textbf{FIFO}, a escolha da página a ser removida é a que entrou primeiro, ou seja, a primeira da fila. No \textbf{LRU}, também removemos as páginas que estão no início da fila, pois toda vez que a página é acessada ela vai pro final da fila, assim, seu início contém as páginas que foram acessadas menos recentemente. No \textbf{LFU}, para cada acesso à memória, cada página possui um contador para indicar a quantidade de acessos à ela. Assim, a cada acesso à memória, ordenamos as páginas de acordo com esse contador, então as primeiras páginas da fila serão as que foram menos frequentemente usadas.
 
+
 \subsection{Algoritmos implementados}
 
 \vspace{0.2 true cm}
@@ -129,6 +130,12 @@ Para o \textbf{FIFO}, a escolha da página a ser removida é a que entrou primei
  \subitem \textbf{Complexidade:} $O(n)$, onde $n$ é o número de páginas que cabe na memória.
 \end{itemize}
 
+\subsection{COMPLEXIDADE GERAL}
+\label{complexidades}
+
+Cada complexidade separada dos algortimos será $O(n)$, onde $n$ é o número de páginas na memória, igual para cada um deles. Porém, a complexidade geral do programa deve levar em consideração a quantidade instâncias, de páginas e de acessos.
+
+Assim, nosso cálculo de complexidade poderia ser definido como \textit{número de páginas * número de acessos * 3}. Nesses três parâmetros, o que tem um maior peso seria os acessos, pois ele que irá dominar todos os outros. Por isso, podemos dizer então, que a complexidade final do programa será de $O(n)$, porém $n$ aqui será a quantidade de acessos feitos.
 
 \section{IMPLEMENTAÇÃO}
 \label{implementacao}
@@ -317,24 +324,56 @@ As piores instâncias nessa análise foram as instâncias 1 e 3. A instãncia 1 
 \end{figure}
 
 
+\subsection{Tamanho da página x Bytes Movimentados}
+\label{tam_pag_bytes_mov}
+
+Na Figura \ref{tam_pag_bytes_mov} temos a relação de "Tamanho da página x Bytes Movimentados". Com essas informações podemos analisar o \textit{trade-off} entre o tamanho da página e o volume transferido entre disco e memória. Como foi dito na especificação do trabalho "Páginas maiores irão certamente diminuir o número de falhas, porém vão causar o carregamento desncessário de muitos dados", podemos verificar isso ocorrendo de fato em nossos testes.
+
+A política adotada foi a seguinte: foi fixado o tamanho da memória em 256 bytes, e então variamos o tamanho de cada página (sempre na potência de 2), de 1 até 256. Para páginas pequenas (1, 2, 4, 8 bytes), podemos ver que poucas falhas ocorreram, então consequentemente, poucos dados foram movimentados. Já no caso de páginas maiores (128, 256 bytes), a quantidade de falhas reduziu drásticamente, porém a quantidade de bytes movimentados também cresceu vertiginosamente.
+
+A performance de cada uma das políticas de reposição nessa situação foi igual para todas. Todas obtiveram o mesmo número de falhas e, consequentemente, a mesma quantidade de bytes movimentados.
+
+
+   \begin{figure}
+        \centering
+        \includegraphics[width=1.15\textwidth]{tam_pag_bytes_mov.png}
+        \caption{Tamanho da página x Bytes Movimentados (Memória fixa em 256 bytes)}
+        \label{tam_pag_bytes_mov}
+    \end{figure}
+
+
+\subsection{Tamanho da memória x Page Faults}
+\label{tam_mem_page_faults}
+
+
+Na Figura \ref{tam_mem_page_faults} temos a relação de "Tamanho da memória x Page Faults". O objetivo desta análise seria estimar o tamanho ideal de memória física disponível. Obviamente, quanto mais memória menos falhas ocorrerão, porém este teste deixou vísivel a partir de qual momento já é interessante determinar qual a melhor quantidade de memória necessária para obter menos falhas.
+
+A política adotada neste teste foi o seguinte: foi fixado o tamanho da página em 4 bytes, após isso, variamos o tamanho da memória (sempre na potência de 2), de 4 até 256. E podemos perceber, como já era esperado, que quanto maior a memória disponível, menor a quantidade de \textit{page faults}.
+
+Apesar de os números
+
+
+   \begin{figure}
+        \centering
+        \includegraphics[width=1.15\textwidth]{tam_mem_page_faults.png}
+        \caption{Tamanho da memória x Page Faults (Página fixa em 4 bytes)}
+        \label{tam_mem_page_faults}
+    \end{figure}
+
 
 \subsection{Resultado}
 
-	Como é possível perceber pela série de testes na última seção, quanto maior a cadeia de caracteres a ser computada pelos algoritmos, mais homogênea e regular a diferença entre cada solução fica. Nos primeiros teste, de apenas uma palavra \ref{pequeno}, e de 5 palavras \ref{medio}, a variação é gritante. No primeiro varia de $0\%$ até $800\%$, no segundo a variação diminui mas ainda é relativamente grande. Podemos ver na Figura \ref{cincopalavras}, que a quantidade de caracteres vai de aproximadamente $15\%$ para $100\%$.
+De acordo com as nossas análises feitas, podemos estimar os valores ideias para o tamanho da memória física e o tamanho das páginas, para obter o menor número de falhas possível para cada uma das quatro sequências de acessos disponibilisadas para os testes.
 
-	Nos últimos testes a curva de variação de caracteres vai se tornando cada vez mais estável. No teste com dez palavras concatenadas, na Figura \ref{dezpalavras}, a variação vai de aproximadamente $25\%$ para $75\%$. Mas quando os caracteres vão para a casa das centenas e milhares, essa variação se torna cada vez menor, se localizando em torno dos $60\%$, $70\%$.
+Na Figura \ref{tam_mem_page_faults} é possível ver que a Instância 1 e 4 obitveram os piores resultados. Isso ocorreu justamente pela caratéristica de cada uma. A sequência de acessos nessas instâncias ocorreram de uma forma mais caótica, quando posições muito distantes umas das outras foram acessadas em sequência. Já no caso das Instâncias 2 e 3 ocorre o contrário, as sequências de acessos ocorrem de uma maneira mais sequencial, com uma localidade de referência espacial menor, pois dados próximos são acessados em um curto espaço de tempo.
+
+Na Figura \ref{tam_mem_page_faults} o desempenho de cada uma das políticas é igual para as quatro instâncias, obtendo a mesma quantidade de \textit{page faults} e, consequentemente, de bytes movimentados. Isso ocorreu pois com a quantidade de memória estabelecida, independente da política escolhida, a mesma quantidade de \textit{page faults} ocorreria.
 
 
 \section{CONCLUSÃO}
 \label{conclusao}
 
-    Os dois algoritmos implementados solucionam o problema do palíndromo apresentado. O primeiro algoritmo, utilizando o paradigma de programação dinâmica, possui solução ótima, ou seja, sempre encontrará o melhor resultado. Já o algoritmo guloso, possui solução não-ótima, pois toma as decisões que julga ser melhor naquele momento específico, porém sem considerar vários outros aspectos do problema.
-
-    Foi visto na Avaliação Experimental, que quanto maior a cadeia de caracteres, mais constante ficava a diferença entre as soluções ótima e não-ótima. Claro que a solução ótima ainda conseguia resolver o problema com uma média de $60\%$ a menos de caracteres inseridos, mas ainda assim era um resultado que não era esperado. Acreditava que a solução não-ótima do algoritmo guloso teria um rendimento muito pior.
-
-    Caso fosse acatar o resultado do teste \ref{pequeno}, poderia dizer que o teto observável para a quantidade de caracteres a ser inseridos seria $800\%$, porém esse foi um único caso dentre centenas de outros testados. Observando os resultados dos testes maiores, poderia dizer que o teto observável ficaria em torno de $75\%$.
-
-    O problema de gerar palíndromos de forma eficiente foi solucionado com sucesso. Além disso, duas soluções, uma ótima e uma não-ótima, foram implementadas, obtendo um bom rendimento nos inúmeros testes realizados. Nos testes comparativos foi possível perceber a diferença gritante entre uma solução ótima e uma não-ótima.
+No geral, a relação entre cada uma das políticas se manteve praticamente constante, nos gráficos pode não estar totalmente perceptível, mas
 
 \bibliographystyle{sbc}
 \bibliography{tp3}
